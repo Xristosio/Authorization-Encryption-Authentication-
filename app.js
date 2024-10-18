@@ -292,5 +292,5 @@ app.patch("/renew_apikey", async (req, res) => {
 });
 
 app.listen(process.env.PORT, () => {
-  console.log(`Server is running on https://api2.ubser04.gr`);
+  console.log(`Server is running on server`);
 });
