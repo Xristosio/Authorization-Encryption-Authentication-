@@ -24,7 +24,7 @@ app.use(cookieParser());
 dotenv.config();
 
 app.use(cors({
-  origin: 'https://site2.ubser04.gr',
+  origin: 'https://domain.gr',
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   credentials: true, // αν χρειάζεται να στείλεις cookies ή authentication headers
 }));
@@ -305,5 +305,5 @@ app.patch("/renew_apikey", async (req, res) => {
 });
 
 app.listen(process.env.PORT, () => {
-  console.log(`Server is running on https://api2.ubser04.gr`);
+  console.log(`Server is running on https://domain.gr`);
 });
