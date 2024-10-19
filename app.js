@@ -11,6 +11,7 @@ const helmet = require("helmet");
 const { v4: uuidv4 } = require("uuid");
 const { error } = require("console");
 const { decode } = require("punycode");
+const cors = require('cors');
 
 //const SECRET_KEY = process.env.SECRET_KEY;
 //const secretKey = crypto.randomBytes(32).toString('hex');
@@ -21,6 +22,12 @@ app.set("trust proxy", 1); // λέει στο Express ότι βρίσκεται 
 app.use(express.json());
 app.use(cookieParser());
 dotenv.config();
+
+app.use(cors({
+  origin: 'https://site2.ubser04.gr',
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  credentials: true, // αν χρειάζεται να στείλεις cookies ή authentication headers
+}));
 
 app.use(
   helmet({
@@ -146,6 +153,11 @@ app.get("/data", authenticateToken, async (req, res) => {
   }
 });
 
+app.post("/verify", authenticateToken, async (req, res) => {
+  //console.log(req.user);
+  res.json({message: 'Verified', user:req.user});
+});
+
 app.post("/login", loginLimiter, async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -165,7 +177,8 @@ app.post("/login", loginLimiter, async (req, res) => {
       res.cookie("auth_token", encrypted, {
         httpOnly: true,
         secure: true,
-        sameSite: "None",
+        sameSite: "Lax",
+        path: "/",
         maxAge: 60 * 60 * 1000,
       });
 
