@@ -234,20 +234,20 @@ app.post("/register_apikey", async (req, res) => {
   const apiKey = generateApiKey();
   const hashedApi = await bcrypt.hash(apiKey.generatedApiKey, saltRounds);
 
+  console.log(apiKey);
+
   try {
     await pool.query(
       "INSERT INTO apikeys (user_id, api_key, created_at, expires_at) VALUES ($1,$2,$3,$4)",
       [decode.id, hashedApi, apiKey.createdAt, apiKey.expiresAt]
     );
     res.json({
-      KeepItSafe: apiKey.generatedApiKey,
+      message: apiKey.generatedApiKey,
       expire: apiKey.expiresAt,
     });
   } catch (err) {
     if (err.code === "23505") {
-      res
-        .status(400)
-        .json({ message: "API Key for this user already exists." });
+      res.json({ message: "API Key for this user already exists."});
     } else {
       res.status(500).json({ message: "Internal server error.", error: err });
     }
@@ -255,11 +255,13 @@ app.post("/register_apikey", async (req, res) => {
 });
 
 app.delete("/delete_apikey", async (req, res) => {
+  
   let token = req.cookies["auth_token"];
   if (!token) return res.status(401).json({ message: "No token" });
 
   token = decryptToken(token);
   const decode = jwt.verify(token, process.env.SECRET_KEY);
+  
   try {
     const result = await pool.query("DELETE FROM apikeys WHERE user_id = $1", [
       decode.id,
@@ -268,7 +270,7 @@ app.delete("/delete_apikey", async (req, res) => {
     if (result.rowCount > 0) {
       res.json({ message: "API key has been deleted" });
     } else {
-      res.status(404).json({ message: "No API Key found for this user." });
+      res.json({ message: "No API key found for this user." });
     }
   } catch (err) {
     res.status(500).json({ message: "Internal server error." });
@@ -297,7 +299,7 @@ app.patch("/renew_apikey", async (req, res) => {
         newExpireAt: newExpireDate,
       });
     } else {
-      res.status(404).json({ message: "No API key found for this user." });
+      res.json({ message: "No API key found for this user." });
     }
   } catch (err) {
     res.status(500).json({ message: "Internal server error." });
